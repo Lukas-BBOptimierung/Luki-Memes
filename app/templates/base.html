@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ title or "Client Portal Template" }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="{{ url_for('static', path='styles.css') }}" rel="stylesheet" />
+  </head>
+  <body class="min-h-screen bg-slate-950 text-slate-100 antialiased">
+    <div class="relative overflow-hidden">
+      <div class="pointer-events-none absolute inset-0">
+        <div class="absolute -left-20 -top-14 h-72 w-72 rounded-full bg-emerald-500/25 blur-3xl"></div>
+        <div class="absolute right-0 top-10 h-64 w-64 rounded-full bg-sky-500/15 blur-3xl"></div>
+        <div class="absolute bottom-0 left-12 h-80 w-80 rounded-full bg-indigo-500/10 blur-3xl"></div>
+      </div>
+
+      <header class="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-4 py-6">
+        <div class="flex items-center gap-3">
+          <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-sky-500 text-lg font-semibold text-slate-950 shadow-lg shadow-emerald-500/30">
+            C
+          </div>
+          <div>
+            <p class="text-sm uppercase tracking-[0.2em] text-emerald-200/90">Client Portal</p>
+            <p class="text-lg font-semibold text-white">FastAPI + Tailwind Template</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 text-sm">
+          <a
+            href="/docs"
+            class="rounded-full border border-white/10 bg-white/5 px-4 py-2 font-medium text-white transition hover:border-emerald-300/70 hover:bg-white/10"
+          >
+            API Docs
+          </a>
+          {% if user %}
+            <span class="hidden rounded-full bg-emerald-500/20 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-emerald-100 sm:inline">
+              Angemeldet
+            </span>
+          {% endif %}
+        </div>
+      </header>
+
+      <main class="relative z-10 mx-auto max-w-6xl px-4 pb-14">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </body>
+</html>

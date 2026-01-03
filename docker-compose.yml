@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${IMAGE}:latest
+    container_name: ${IMAGE}_app
+    restart: unless-stopped
+    depends_on:
+      - db
+    networks:
+      - proxy
+      - internal
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      APP_API_KEY: ${APP_API_KEY}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+
+      # HTTP-Router: nur für Redirect nach HTTPS
+      - "traefik.http.routers.${IMAGE}_app_http.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${IMAGE}_app_http.entrypoints=web"
+      - "traefik.http.routers.${IMAGE}_app_http.middlewares=redirect-to-https"
+
+      # Middleware für Redirect (http -> https)
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+
+      # HTTPS-Router (eigentliche App)
+      - "traefik.http.routers.${IMAGE}_app.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${IMAGE}_app.entrypoints=websecure"
+      - "traefik.http.routers.${IMAGE}_app.tls=true"
+      - "traefik.http.routers.${IMAGE}_app.tls.certresolver=myresolver"
+
+      # WICHTIG: Router nutzt diesen Service-Namen
+      - "traefik.http.routers.${IMAGE}_app.service=${IMAGE}_app_svc"
+
+      # WICHTIG: Service wird hier definiert
+      - "traefik.http.services.${IMAGE}_app_svc.loadbalancer.server.port=8000"
+
+  db:
+    image: postgres:16
+    container_name: ${IMAGE}_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - internal
+
+networks:
+  proxy:
+    external: true
+  internal:
+
+volumes:
+  db_data:

@@ -1,0 +1,12 @@
+{
+  "name": "fastapi-tailwind-template",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tailwindcss -c tailwind.config.cjs -i ./app/static_src/input.css -o ./app/static/styles.css --watch",
+    "build": "tailwindcss -c tailwind.config.cjs -i ./app/static_src/input.css -o ./app/static/styles.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}
