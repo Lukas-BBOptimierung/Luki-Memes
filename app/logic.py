@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Meme, MemeReaction, MemeTemplate
@@ -134,4 +134,17 @@ async def set_reaction(
             reaction=reaction,
         )
     )
+    await db.commit()
+
+
+async def delete_meme(db: AsyncSession, meme_id: int) -> None:
+    await db.execute(
+        delete(MemeReaction).where(MemeReaction.meme_id == meme_id)
+    )
+    await db.execute(delete(Meme).where(Meme.id == meme_id))
+    await db.commit()
+
+
+async def delete_template(db: AsyncSession, template_id: int) -> None:
+    await db.execute(delete(MemeTemplate).where(MemeTemplate.id == template_id))
     await db.commit()

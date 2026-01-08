@@ -36,9 +36,47 @@
     </button>
   </form>
   {% endif %}
+  {% if show_delete %}
+  <form method="post" action="{{ delete_action }}" class="mt-4" id="deleteForm">
+    <div class="flex gap-4 items-center detail-actions">
+      <a href="{{ download_url }}" download class="btn btn-primary">Download</a>
+      <a href="{{ back_url }}" class="btn btn-outline">Zurück</a>
+      <button type="submit" class="btn btn-danger" id="deleteButton">
+        <img src="{{ url_for('static', path='trash.svg') }}" alt="">
+        Löschen
+      </button>
+    </div>
+    <input
+      name="master_password"
+      type="password"
+      class="delete-input{% if not delete_error %} hidden{% endif %}"
+      id="deleteInput"
+      placeholder="Masterpasswort"
+      required
+    >
+    {% if delete_error %}
+    <p class="text-sm text-slate-500 mt-4">{{ delete_error }}</p>
+    {% endif %}
+  </form>
+  <script>
+    const deleteForm = document.getElementById("deleteForm");
+    const deleteInput = document.getElementById("deleteInput");
+    const deleteButton = document.getElementById("deleteButton");
+    if (deleteForm && deleteInput && deleteButton) {
+      deleteButton.addEventListener("click", (event) => {
+        if (deleteInput.classList.contains("hidden")) {
+          event.preventDefault();
+          deleteInput.classList.remove("hidden");
+          deleteInput.focus();
+        }
+      });
+    }
+  </script>
+  {% else %}
   <div class="mt-4 flex gap-4">
     <a href="{{ download_url }}" download class="btn btn-primary">Download</a>
     <a href="{{ back_url }}" class="btn btn-outline">Zurück</a>
   </div>
+  {% endif %}
 </div>
 {% endblock %}

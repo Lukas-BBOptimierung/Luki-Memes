@@ -21,6 +21,7 @@ app = FastAPI(title="Luki Memes")
 
 
 APP_PASSWORD = os.getenv("APP_PASSWORD", "2102")
+APP_MASTER_PASSWORD = os.getenv("APP_MASTER_PASSWORD", "vWs%h!fw17X41^RF")
 APP_SECRET = os.getenv("APP_SECRET", "CHANGE_ME")
 NAME_COOKIE = "lm_name"
 AUTH_COOKIE = "lm_auth"
@@ -296,18 +297,31 @@ async def template_detail(
     item = await logic.get_template(db, template_id)
     if not item:
         return RedirectResponse("/templates", status_code=303)
-    return templates.TemplateResponse(
-        "detail.html",
-        {
-            "request": request,
-            "current_user": current_user,
-            "title": item.title,
-            "file_url": f"/static/{item.file_path}",
-            "uploaded_by": item.uploaded_by,
-            "back_url": "/templates",
-            "download_url": f"/static/{item.file_path}",
-        },
+    context = await build_template_detail_context(
+        request, current_user, item, delete_error=None
     )
+    return templates.TemplateResponse("detail.html", context)
+
+
+async def build_template_detail_context(
+    request: Request,
+    current_user: str,
+    item,
+    delete_error: Optional[str],
+) -> dict:
+    return {
+        "request": request,
+        "current_user": current_user,
+        "title": item.title,
+        "file_url": f"/static/{item.file_path}",
+        "uploaded_by": item.uploaded_by,
+        "back_url": "/templates",
+        "download_url": f"/static/{item.file_path}",
+        "show_reactions": False,
+        "show_delete": True,
+        "delete_action": f"/templates/{item.id}/delete",
+        "delete_error": delete_error,
+    }
 
 
 @app.get("/memes", response_class=HTMLResponse, name="memes_list")
@@ -406,6 +420,35 @@ async def memes_upload_submit(
     return RedirectResponse("/memes", status_code=303)
 
 
+async def build_meme_detail_context(
+    request: Request,
+    current_user: str,
+    item,
+    db: AsyncSession,
+    delete_error: Optional[str],
+) -> dict:
+    reaction_counts = await logic.get_reaction_counts(db, [item.id])
+    user_reactions = await logic.get_user_reactions(db, [item.id], current_user)
+    meme_counts = reaction_counts.get(item.id, {"like": 0, "dislike": 0})
+    return {
+        "request": request,
+        "current_user": current_user,
+        "title": item.title,
+        "file_url": f"/static/{item.file_path}",
+        "uploaded_by": item.uploaded_by,
+        "back_url": "/memes",
+        "download_url": f"/static/{item.file_path}",
+        "show_reactions": True,
+        "meme_id": item.id,
+        "likes": meme_counts.get("like", 0),
+        "dislikes": meme_counts.get("dislike", 0),
+        "user_reaction": user_reactions.get(item.id),
+        "show_delete": True,
+        "delete_action": f"/memes/{item.id}/delete",
+        "delete_error": delete_error,
+    }
+
+
 @app.get("/memes/{meme_id}", response_class=HTMLResponse, name="meme_detail")
 async def meme_detail(
     request: Request,
@@ -418,26 +461,10 @@ async def meme_detail(
     item = await logic.get_meme(db, meme_id)
     if not item:
         return RedirectResponse("/memes", status_code=303)
-    reaction_counts = await logic.get_reaction_counts(db, [meme_id])
-    user_reactions = await logic.get_user_reactions(db, [meme_id], current_user)
-    meme_counts = reaction_counts.get(meme_id, {"like": 0, "dislike": 0})
-    return templates.TemplateResponse(
-        "detail.html",
-        {
-            "request": request,
-            "current_user": current_user,
-            "title": item.title,
-            "file_url": f"/static/{item.file_path}",
-            "uploaded_by": item.uploaded_by,
-            "back_url": "/memes",
-            "download_url": f"/static/{item.file_path}",
-            "show_reactions": True,
-            "meme_id": meme_id,
-            "likes": meme_counts.get("like", 0),
-            "dislikes": meme_counts.get("dislike", 0),
-            "user_reaction": user_reactions.get(meme_id),
-        },
+    context = await build_meme_detail_context(
+        request, current_user, item, db, delete_error=None
     )
+    return templates.TemplateResponse("detail.html", context)
 
 
 @app.post("/memes/{meme_id}/react")
@@ -458,6 +485,67 @@ async def meme_react(
     await logic.set_reaction(db, meme_id, current_user, reaction)
     redirect_target = request.headers.get("referer") or f"/memes/{meme_id}"
     return RedirectResponse(redirect_target, status_code=303)
+
+
+@app.post("/memes/{meme_id}/delete")
+async def meme_delete(
+    request: Request,
+    meme_id: int,
+    master_password: str = Form(...),
+    db: AsyncSession = Depends(get_db),
+):
+    current_user = get_current_user(request)
+    if not current_user:
+        return RedirectResponse("/login", status_code=303)
+    item = await logic.get_meme(db, meme_id)
+    if not item:
+        return RedirectResponse("/memes", status_code=303)
+    if master_password != APP_MASTER_PASSWORD:
+        context = await build_meme_detail_context(
+            request,
+            current_user,
+            item,
+            db,
+            delete_error="Masterpasswort ist falsch.",
+        )
+        return templates.TemplateResponse("detail.html", context)
+    file_path = BASE_DIR / "static" / item.file_path
+    await logic.delete_meme(db, meme_id)
+    try:
+        file_path.unlink()
+    except FileNotFoundError:
+        pass
+    return RedirectResponse("/memes", status_code=303)
+
+
+@app.post("/templates/{template_id}/delete")
+async def template_delete(
+    request: Request,
+    template_id: int,
+    master_password: str = Form(...),
+    db: AsyncSession = Depends(get_db),
+):
+    current_user = get_current_user(request)
+    if not current_user:
+        return RedirectResponse("/login", status_code=303)
+    item = await logic.get_template(db, template_id)
+    if not item:
+        return RedirectResponse("/templates", status_code=303)
+    if master_password != APP_MASTER_PASSWORD:
+        context = await build_template_detail_context(
+            request,
+            current_user,
+            item,
+            delete_error="Masterpasswort ist falsch.",
+        )
+        return templates.TemplateResponse("detail.html", context)
+    file_path = BASE_DIR / "static" / item.file_path
+    await logic.delete_template(db, template_id)
+    try:
+        file_path.unlink()
+    except FileNotFoundError:
+        pass
+    return RedirectResponse("/templates", status_code=303)
 
 
 @app.get("/slideshow", response_class=HTMLResponse, name="slideshow")

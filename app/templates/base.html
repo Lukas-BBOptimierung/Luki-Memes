@@ -17,10 +17,10 @@
     <div class="min-h-screen">
       {% if show_header is not defined or show_header %}
       <header class="bg-white border-b">
-        <div class="container px-4 py-2 flex justify-between items-center">
+        <div class="container px-4 py-2 flex justify-between items-center header-bar">
           <a href="/" class="text-2xl font-semibold">Luki Memes</a>
           {% if current_user %}
-          <nav class="flex items-center gap-4 text-sm">
+          <nav class="flex items-center gap-4 text-sm main-nav">
             <a href="/templates" class="font-medium">Templates</a>
             <a href="/memes" class="font-medium">Memes</a>
             <a href="/slideshow" class="font-medium">Diashow</a>
