@@ -20,7 +20,7 @@ from app.models import Base
 app = FastAPI(title="Luki Memes")
 
 
-APP_PASSWORD = os.getenv("APP_PASSWORD", "2102")
+APP_PASSWORD = os.getenv("APP_PASSWORD", "21022026")
 APP_MASTER_PASSWORD = os.getenv("APP_MASTER_PASSWORD", "vWs%h!fw17X41^RF")
 APP_SECRET = os.getenv("APP_SECRET", "CHANGE_ME")
 NAME_COOKIE = "lm_name"
@@ -554,11 +554,15 @@ async def slideshow(request: Request, db: AsyncSession = Depends(get_db)):
     if not current_user:
         return RedirectResponse("/login", status_code=303)
     memes_list = await logic.list_memes(db)
+    meme_ids = [item.id for item in memes_list]
+    reaction_counts = await logic.get_reaction_counts(db, meme_ids)
     entries = [
         {
             "url": f"/static/{item.file_path}",
             "title": item.title,
             "uploaded_by": item.uploaded_by,
+            "likes": reaction_counts.get(item.id, {}).get("like", 0),
+            "dislikes": reaction_counts.get(item.id, {}).get("dislike", 0),
         }
         for item in memes_list
     ]

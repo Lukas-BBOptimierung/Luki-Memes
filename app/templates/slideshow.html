@@ -15,14 +15,28 @@
   </head>
   <body class="slideshow-body">
     <div class="slideshow-frame">
-      <img id="slideImage" src="" alt="Meme">
-      <div class="slideshow-caption" id="slideCaption"></div>
+      <img id="slideImage" src="" alt="Meme" class="slideshow-image">
+      <div class="slideshow-caption">
+        <div class="slideshow-caption-text" id="slideText"></div>
+        <div class="slideshow-reactions">
+          <div class="slideshow-reaction">
+            <img src="{{ url_for('static', path='thumbs-up.svg') }}" alt="Likes">
+            <span id="slideLikes">0</span>
+          </div>
+          <div class="slideshow-reaction">
+            <img src="{{ url_for('static', path='thumbs-down.svg') }}" alt="Dislikes">
+            <span id="slideDislikes">0</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
       const memes = {{ memes_json | safe }};
       const frame = document.getElementById("slideImage");
-      const caption = document.getElementById("slideCaption");
+      const text = document.getElementById("slideText");
+      const likes = document.getElementById("slideLikes");
+      const dislikes = document.getElementById("slideDislikes");
 
       function shuffle(list) {
         return list
@@ -40,7 +54,9 @@
         }
         const current = order[index];
         frame.src = current.url;
-        caption.textContent = `${current.title} - ${current.uploaded_by}`;
+        text.textContent = `${current.title} - ${current.uploaded_by}`;
+        likes.textContent = current.likes ?? 0;
+        dislikes.textContent = current.dislikes ?? 0;
         index += 1;
         if (index >= order.length) {
           index = 0;
