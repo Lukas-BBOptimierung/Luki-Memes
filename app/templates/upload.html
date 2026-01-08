@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-white border rounded-xl shadow p-4 max-w-md mx-auto">
+  <div class="space-y-2 mb-6">
+    <h1 class="text-2xl font-semibold">{{ title }}</h1>
+    <p class="text-slate-500 text-sm">{{ subtitle }}</p>
+  </div>
+  {% if error %}
+  <div class="bg-slate-100 border rounded-lg p-4 text-sm text-slate-700 mb-6">
+    {{ error }}
+  </div>
+  {% endif %}
+  <form method="post" enctype="multipart/form-data" class="space-y-2">
+    <label class="block text-sm font-medium" for="title">Titel</label>
+    <input
+      id="title"
+      name="title"
+      type="text"
+      class="w-full border rounded-lg px-4 py-2 bg-white"
+      required
+    >
+
+    <label class="block text-sm font-medium" for="file">Datei</label>
+    <input
+      id="file"
+      name="file"
+      type="file"
+      class="w-full border rounded-lg px-4 py-2 bg-white"
+      accept="image/*"
+      required
+    >
+
+    <button type="submit" class="btn btn-primary w-full mt-4">
+      Upload
+    </button>
+  </form>
+</div>
+{% endblock %}

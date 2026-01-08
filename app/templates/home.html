@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="bg-white border rounded-xl shadow p-4 mb-6">
+  <div class="space-y-2">
+    <h1 class="text-2xl font-semibold">Meme Zentrale</h1>
+    <p class="text-slate-500">
+      Hier gibt es Meme Templates zum Starten und fertige Memes zum Feiern.
+      Du kannst Templates und Memes hochladen, ansehen und herunterladen.
+    </p>
+  </div>
+  <div class="grid grid-cols-2 gap-4 mt-4">
+    <div class="bg-slate-50 border rounded-lg p-4">
+      <p class="text-2xl font-semibold">{{ stats.templates }}</p>
+      <p class="text-sm text-slate-500">Templates</p>
+    </div>
+    <div class="bg-slate-50 border rounded-lg p-4">
+      <p class="text-2xl font-semibold">{{ stats.memes }}</p>
+      <p class="text-sm text-slate-500">Memes</p>
+    </div>
+  </div>
+</section>
+
+<section class="grid md:grid-cols-3 gap-4">
+  <a href="/templates" class="bg-white border rounded-xl shadow p-4 block">
+    <div class="space-y-2">
+      <h2 class="text-xl font-semibold">Meme Templates</h2>
+      <p class="text-slate-500 text-sm">
+        Alle Vorlagen zum Downloaden.
+      </p>
+    </div>
+    <div class="mt-4">
+      <span class="btn btn-outline">Zu den Templates</span>
+    </div>
+  </a>
+  <a href="/memes" class="bg-white border rounded-xl shadow p-4 block">
+    <div class="space-y-2">
+      <h2 class="text-xl font-semibold">Memes</h2>
+      <p class="text-slate-500 text-sm">
+        Alle fertigen Memes.
+      </p>
+    </div>
+    <div class="mt-4">
+      <span class="btn btn-outline">Zu den Memes</span>
+    </div>
+  </a>
+  <a href="/slideshow" class="bg-white border rounded-xl shadow p-4 block">
+    <div class="space-y-2">
+      <h2 class="text-xl font-semibold">Diashow</h2>
+      <p class="text-slate-500 text-sm">
+        Vollscreen Loop aller Memes.
+      </p>
+    </div>
+    <div class="mt-4">
+      <span class="btn btn-primary">Starten</span>
+    </div>
+  </a>
+</section>
+{% endblock %}

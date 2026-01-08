@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen flex items-center">
+  <div class="bg-white border rounded-xl shadow p-4 max-w-md mx-auto w-full">
+    <div class="space-y-2 mb-6">
+      <h1 class="text-2xl font-semibold">Willkommen bei Luki Memes</h1>
+      <p class="text-slate-500">
+        Gib deinen Namen und das allgemeine Passwort ein, um zu starten.
+      </p>
+    </div>
+    {% if error %}
+    <div class="bg-slate-100 border rounded-lg p-4 text-sm text-slate-700 mb-6">
+      {{ error }}
+    </div>
+    {% endif %}
+    <form method="post" class="space-y-2">
+      <label class="block text-sm font-medium" for="name">Name</label>
+      <input
+        id="name"
+        name="name"
+        type="text"
+        class="w-full border rounded-lg px-4 py-2 bg-white"
+        value="{{ name }}"
+        required
+      >
+
+      <label class="block text-sm font-medium" for="password">Passwort</label>
+      <div class="flex gap-4 items-center">
+        <input
+          id="password"
+          name="password"
+          type="password"
+          class="w-full border rounded-lg px-4 py-2 bg-white"
+          required
+        >
+        <button type="button" id="togglePassword" class="btn btn-outline text-sm">
+          Anzeigen
+        </button>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-full mt-4">
+        Weiter
+      </button>
+    </form>
+    <script>
+      const toggle = document.getElementById("togglePassword");
+      const input = document.getElementById("password");
+      if (toggle && input) {
+        toggle.addEventListener("click", () => {
+          const showing = input.type === "text";
+          input.type = showing ? "password" : "text";
+          toggle.textContent = showing ? "Anzeigen" : "Ausblenden";
+        });
+      }
+    </script>
+  </div>
+</div>
+{% endblock %}

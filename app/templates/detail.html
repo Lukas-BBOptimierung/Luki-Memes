@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<a href="{{ back_url }}" class="text-sm text-slate-500">Zurück</a>
+<div class="bg-white border rounded-xl shadow p-4 mt-4">
+  <div class="aspect-video bg-slate-100 border rounded-lg overflow-hidden">
+    <img
+      src="{{ file_url }}"
+      alt="{{ title }}"
+      class="w-full h-full object-contain"
+    >
+  </div>
+  <div class="space-y-2 mt-4">
+    <h1 class="text-2xl font-semibold">{{ title }}</h1>
+    <p class="text-sm text-slate-500">von {{ uploaded_by }}</p>
+  </div>
+  {% if show_reactions %}
+  <form method="post" action="/memes/{{ meme_id }}/react" class="reaction-bar mt-4">
+    <button
+      type="submit"
+      name="reaction"
+      value="like"
+      class="reaction-btn{% if user_reaction == 'like' %} active{% endif %}"
+    >
+      <img src="{{ url_for('static', path='thumbs-up.svg') }}" alt="Like">
+      <span>{{ likes }}</span>
+    </button>
+    <button
+      type="submit"
+      name="reaction"
+      value="dislike"
+      class="reaction-btn dislike{% if user_reaction == 'dislike' %} active{% endif %}"
+    >
+      <img src="{{ url_for('static', path='thumbs-down.svg') }}" alt="Dislike">
+      <span>{{ dislikes }}</span>
+    </button>
+  </form>
+  {% endif %}
+  <div class="mt-4 flex gap-4">
+    <a href="{{ download_url }}" download class="btn btn-primary">Download</a>
+    <a href="{{ back_url }}" class="btn btn-outline">Zurück</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <div class="space-y-2">
+    <h1 class="text-2xl font-semibold">{{ title }}</h1>
+    <p class="text-slate-500 text-sm">{{ subtitle }}</p>
+  </div>
+  <a href="{{ upload_url }}" class="btn btn-primary">Upload</a>
+</div>
+
+{% if items %}
+<div class="grid md:grid-cols-3 gap-4">
+  {% for item in items %}
+  <div class="bg-white border rounded-xl shadow p-4">
+    <a href="{{ detail_prefix }}{{ item.id }}" class="block">
+      <div class="aspect-video bg-slate-100 border rounded-lg overflow-hidden grid-image">
+        <img
+          src="{{ item.file_url }}"
+          alt="{{ item.title }}"
+          class="w-full h-full object-contain"
+        >
+      </div>
+      <div class="flex mt-4 justify-between items-center">
+        <p class="font-medium text-slate-600">{{ item.title }}</p>
+        <p class="text-sm text-slate-500">Von {{ item.uploaded_by }}</p>
+      </div>
+    </a>
+    {% if is_memes %}
+    <form method="post" action="/memes/{{ item.id }}/react" class="reaction-bar mt-4">
+      <button
+        type="submit"
+        name="reaction"
+        value="like"
+        class="reaction-btn{% if item.user_reaction == 'like' %} active{% endif %}"
+      >
+        <img src="{{ url_for('static', path='thumbs-up.svg') }}" alt="Like">
+        <span>{{ item.likes }}</span>
+      </button>
+      <button
+        type="submit"
+        name="reaction"
+        value="dislike"
+        class="reaction-btn dislike{% if item.user_reaction == 'dislike' %} active{% endif %}"
+      >
+        <img src="{{ url_for('static', path='thumbs-down.svg') }}" alt="Dislike">
+        <span>{{ item.dislikes }}</span>
+      </button>
+    </form>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="bg-white border rounded-xl shadow p-4 text-center">
+  <p class="text-slate-500">{{ empty_hint }}</p>
+</div>
+{% endif %}
+{% endblock %}

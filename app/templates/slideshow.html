@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Diashow - Luki Memes</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    >
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', path='styles.css') }}?v={{ asset_version }}"
+    >
+  </head>
+  <body class="slideshow-body">
+    <div class="slideshow-frame">
+      <img id="slideImage" src="" alt="Meme">
+      <div class="slideshow-caption" id="slideCaption"></div>
+    </div>
+
+    <script>
+      const memes = {{ memes_json | safe }};
+      const frame = document.getElementById("slideImage");
+      const caption = document.getElementById("slideCaption");
+
+      function shuffle(list) {
+        return list
+          .map((item) => ({ sort: Math.random(), value: item }))
+          .sort((a, b) => a.sort - b.sort)
+          .map((item) => item.value);
+      }
+
+      let order = shuffle(memes);
+      let index = 0;
+
+      function showSlide() {
+        if (!order.length) {
+          return;
+        }
+        const current = order[index];
+        frame.src = current.url;
+        caption.textContent = `${current.title} - ${current.uploaded_by}`;
+        index += 1;
+        if (index >= order.length) {
+          index = 0;
+          order = shuffle(memes);
+        }
+      }
+
+      showSlide();
+      setInterval(showSlide, 30000);
+    </script>
+  </body>
+</html>
